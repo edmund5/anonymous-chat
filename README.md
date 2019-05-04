@@ -1,7 +1,7 @@
 # Anonymous Chat
 Add an anonymous chatroom feature to your Chatfuel-powered bot! Useful for dating applications or chatrooms in general.
 
-[Preview in Messenger](https://m.me/417884968623043)
+> [Preview in Messenger](https://m.me/417884968623043)
 
 ## MIT license
 
