@@ -1,5 +1,11 @@
 <?php
 
+/*
+
+	this function connects to the 'your_database' database
+
+ */
+	
 function connectdb()
 {
     $con = mysqli_connect("localhost", "user", "pass", "your_database");
@@ -14,9 +20,3 @@ function connectdb()
 
     }
 }
-
-/*
-
-this function connects to the 'your_database' database
-
- */

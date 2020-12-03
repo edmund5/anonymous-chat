@@ -14,10 +14,10 @@ if (empty($_POST)) {
     echo '{
               "messages": [
                 {
-                  "text": "Invalid request method."
+                  "text": "Invalid HTTP Method"
                 },
                 {
-                  "text": "Please email contact@somethingtechie.co if you get stuck or have questions."
+                  "text": "Please email edmundcinco@me.com if you get stuck or have questions."
                 }
               ]
           }';
@@ -35,7 +35,7 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "Invalid bot_id: ' . $bot_id . '"}
+               {"text": "Invalid Bot Id: ' . $bot_id . '"}
              ]
             }';
 
@@ -45,7 +45,7 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "Invalid broadcasting_api_token: ' . $broadcasting_api_token . '"}
+               {"text": "Invalid Broadcasting API Token: ' . $broadcasting_api_token . '"}
              ]
             }';
 
@@ -55,7 +55,7 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "Invalid messenger_user_id: ' . $messenger_user_id . '"}
+               {"text": "Invalid Messenger User Id: ' . $messenger_user_id . '"}
              ]
             }';
 
@@ -65,16 +65,13 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "channelName is required and cannot be empty."}
+               {"text": "channelName is required and cannot be empty!"}
              ]
             }';
 
     exit;
 
 }
-
-// Timezone
-date_default_timezone_set('UTC');
 
 $updatedAt = date('Y-m-d H:i:s');
 
@@ -87,7 +84,7 @@ if ($result) {
 
 }
 
-sleep(3);
+sleep(5);
 
 $query  = null;
 $result = null;
@@ -98,17 +95,17 @@ while ($row = mysqli_fetch_array($result)) {
 
     if ($row['messenger_user_id'] != $messenger_user_id) {
 
-        $messenger_user_id1 = $messenger_user_id;
-        $messenger_user_id2 = $row['messenger_user_id'];
+        $psid1 = $messenger_user_id;
+        $psid2 = $row['messenger_user_id'];
 
-        $pairId = md5($messenger_user_id1 . $messenger_user_id2);
+        $peer_id = md5($psid1 . $psid2);
 
-        mysqli_query($con, "UPDATE `anonymous_chat` SET pairId = '$pairId', lastStatus = 'chatting', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND messenger_user_id = '$messenger_user_id1'");
+        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = '$peer_id', lastStatus = 'chatting', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND messenger_user_id = '$psid1'");
 
-        mysqli_query($con, "UPDATE `anonymous_chat` SET pairId = '$pairId', lastStatus = 'chatting', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND messenger_user_id = '$messenger_user_id2'");
+        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = '$peer_id', lastStatus = 'chatting', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND messenger_user_id = '$psid2'");
 
-        ChatStarted($bot_id, $broadcasting_api_token, $messenger_user_id1, $pairId);
-        ChatStarted($bot_id, $broadcasting_api_token, $messenger_user_id2, $pairId);
+        ChatStarted($bot_id, $broadcasting_api_token, $psid1, $peer_id);
+        ChatStarted($bot_id, $broadcasting_api_token, $psid2, $peer_id);
 
         exit;
 
@@ -125,19 +122,18 @@ if ($result) {
 
     NoMatch($bot_id, $broadcasting_api_token, $messenger_user_id);
 
-    // channelName = '--', lastStatus = '--', 
     mysqli_query($con, "UPDATE `anonymous_chat` SET updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
 
 }
 
-function ChatStarted($bot_id, $broadcasting_api_token, $psid, $pairId)
+function ChatStarted($bot_id, $broadcasting_api_token, $psid, $peer_id)
 {
 
     $bot_id     = $bot_id;
     $block_name = 'Chat Started';
-    $token      = $broadcasting_api_token; // Broadcasting API Token
+    $token      = $broadcasting_api_token;
 
-    $ch = curl_init('https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name) . '&pairId=' . $pairId);
+    $ch = curl_init('https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name) . '&peer_id=' . $peer_id);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -151,7 +147,7 @@ function NoMatch($bot_id, $broadcasting_api_token, $psid)
 
     $bot_id     = $bot_id;
     $block_name = 'No Match';
-    $token      = $broadcasting_api_token; // Broadcasting API Token
+    $token      = $broadcasting_api_token;
 
     $ch = curl_init('https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name));
     curl_setopt($ch, CURLOPT_POST, 1);

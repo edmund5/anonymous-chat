@@ -14,10 +14,10 @@ if (empty($_POST)) {
     echo '{
               "messages": [
                 {
-                  "text": "Invalid request method."
+                  "text": "Invalid HTTP Method"
                 },
                 {
-                  "text": "Please email contact@somethingtechie.co if you get stuck or have questions."
+                  "text": "Please email edmundcinco@me.com if you get stuck or have questions."
                 }
               ]
           }';
@@ -34,7 +34,7 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "Invalid bot_id: ' . $bot_id . '"}
+               {"text": "Invalid Bot Id: ' . $bot_id . '"}
              ]
             }';
 
@@ -44,7 +44,7 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "Invalid broadcasting_api_token: ' . $broadcasting_api_token . '"}
+               {"text": "Invalid Broadcasting API Token: ' . $broadcasting_api_token . '"}
              ]
             }';
 
@@ -54,16 +54,13 @@ if (strlen($bot_id) !== 24) {
 
     echo '{
              "messages": [
-               {"text": "Invalid messenger_user_id: ' . $messenger_user_id . '"}
+               {"text": "Invalid Messenger User Id: ' . $messenger_user_id . '"}
              ]
             }';
 
     exit;
 
 }
-
-// Timezone
-date_default_timezone_set('UTC');
 
 $createdAt = date('Y-m-d H:i:s');
 $updatedAt = $createdAt;
@@ -77,6 +74,6 @@ if ($result) {
 
 } else {
 
-	mysqli_query($con, "INSERT INTO `anonymous_chat` (`bot_id`,`broadcasting_api_token`,`messenger_user_id`,`pairId`,`channelName`,`lastStatus`,`createdAt`) VALUES('$bot_id','$broadcasting_api_token','$messenger_user_id','--','--','--','$createdAt')");
+	mysqli_query($con, "INSERT INTO `anonymous_chat` (`bot_id`,`broadcasting_api_token`,`messenger_user_id`,`peer_id`,`channelName`,`lastStatus`,`createdAt`) VALUES('$bot_id','$broadcasting_api_token','$messenger_user_id','not set','not set','not set','$createdAt')");
 
 }

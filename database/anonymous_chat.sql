@@ -33,7 +33,7 @@ CREATE TABLE `anonymous_chat` (
   `bot_id` varchar(24) NOT NULL,
   `broadcasting_api_token` varchar(64) NOT NULL,
   `messenger_user_id` varchar(16) NOT NULL,
-  `pairId` varchar(32) NOT NULL,
+  `peer_id` varchar(32) NOT NULL,
   `channelName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `lastStatus` text NOT NULL,
   `createdAt` datetime NOT NULL,
