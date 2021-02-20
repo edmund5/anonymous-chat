@@ -1,6 +1,6 @@
-# Anonymous Chat
+# Anonymous Chat - https://www.anonymouschat.cc
 Add an anonymous chatroom feature to your Chatfuel-powered bot! Useful for dating applications or chatrooms in general.
 
-> [Check the Template](https://dashboard.chatfuel.com/#/templates/category/Tools)
+> [💬 Try on messenger](https://m.me/anonymouschat.cc)
 
-> [Preview in Messenger](https://m.me/anonymouschat.cc)
+> [🤲 Get the template](https://dashboard.chatfuel.com/#/templates/category/Tools)
