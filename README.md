@@ -3,4 +3,4 @@ Add an anonymous chatroom feature to your Chatfuel-powered bot! Useful for datin
 
 > [Check the Template](https://dashboard.chatfuel.com/#/templates/category/Tools)
 
-> [Preview in Messenger](https://m.me/417884968623043)
+> [Preview in Messenger](https://m.me/anonymouschat.cc)
