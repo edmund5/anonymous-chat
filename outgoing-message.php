@@ -109,7 +109,7 @@ if (strlen($bot_id) !== 24) {
 
 $datetime = date('Y-m-d H:i:s');
 
-if (strpos($message, '39178562_1505197616293642_5411344281094848512_n.png')) {
+if (strpos($message, '39178562_1505197616293642_5411344281094848512_n.png') OR strpos($message, '851587_369239346556147_162929011_n.png')) {
     
     $result = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND peer_id = '$peer_id' LIMIT 2") or die(mysqli_error());
     
