@@ -32,12 +32,12 @@ CREATE TABLE `anonymous_chat` (
   `id` int(11) NOT NULL,
   `bot_id` varchar(24) NOT NULL,
   `broadcasting_api_token` varchar(64) NOT NULL,
-  `messenger_user_id` varchar(16) NOT NULL,
+  `messenger_user_id` varchar(255) NOT NULL,
   `peer_id` varchar(32) NOT NULL,
-  `channelName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `lastStatus` text NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL
+  `channel_name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_status` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --

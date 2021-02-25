@@ -1,8 +1,7 @@
 <?php
 /**
- * Anonymous Chat
- * Created by Edmund Cinco
- * Website: https://www.edmundcinco.com
+ * Anonymous Chat - https://www.anonymouschat.cc
+ * Created by Edmund Cinco - https://www.edmundcinco.com
  */
 
 include "connectdb.php";
@@ -12,15 +11,17 @@ $con = connectdb();
 if (empty($_POST)) {
 
     echo '{
-              "messages": [
-                {
-                  "text": "Invalid HTTP Method"
-                },
-                {
-                  "text": "Please email edmundcinco@me.com if you get stuck or have questions."
-                }
-              ]
-          }';
+
+                "messages":[
+                    {
+                        "text":"Invalid HTTP Method Usage"
+                    },
+                    {
+                        "text":"Please email contact@chatbot.so if you get stuck or have questions."
+                    }
+                ]
+
+            }';
     
     exit;
 
@@ -29,14 +30,18 @@ if (empty($_POST)) {
 $bot_id                 = $_POST['bot_id'];
 $broadcasting_api_token = $_POST['broadcasting_api_token'];
 $messenger_user_id      = $_POST['messenger_user_id'];
-$channelName            = $_POST['channelName'];
+$channel_name           = $_POST['channel_name'];
 
 if (strlen($bot_id) !== 24) {
 
     echo '{
-             "messages": [
-               {"text": "Invalid Bot Id: ' . $bot_id . '"}
-             ]
+
+                "messages":[
+                    {
+                        "text":"bot id is required"
+                    }
+                ]
+
             }';
 
     exit;
@@ -44,116 +49,195 @@ if (strlen($bot_id) !== 24) {
 } else if (strlen($broadcasting_api_token) !== 64) {
 
     echo '{
-             "messages": [
-               {"text": "Invalid Broadcasting API Token: ' . $broadcasting_api_token . '"}
-             ]
+
+                "messages":[
+                    {
+                        "text":"broadcasting api token is required"
+                    }
+                ]
+
             }';
 
     exit;
 
-} else if (strlen($messenger_user_id) !== 16) {
+} else if (empty($messenger_user_id)) {
 
     echo '{
-             "messages": [
-               {"text": "Invalid Messenger User Id: ' . $messenger_user_id . '"}
-             ]
+
+                "messages":[
+                    {
+                        "text":"messenger user id is required"
+                    }
+                ]
+
             }';
 
     exit;
 
-} else if (empty($channelName)) {
+} else if (empty($channel_name)) {
 
     echo '{
-             "messages": [
-               {"text": "channelName is required and cannot be empty!"}
-             ]
+
+                "messages":[
+                    {
+                        "text":"Channel Name is required"
+                    }
+                ]
+
             }';
 
     exit;
 
 }
 
-$updatedAt = date('Y-m-d H:i:s');
+$datetime = date('Y-m-d H:i:s');
 
-$query  = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'") or die(mysqli_error());
+$query  = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
 $result = mysqli_fetch_array($query);
 
 if ($result) {
-
-    mysqli_query($con, "UPDATE `anonymous_chat` SET channelName = '$channelName', lastStatus = 'available', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
-
+    
+    mysqli_query($con, "UPDATE `anonymous_chat` SET channel_name = '$channel_name', last_status = 'available', updated_at = '$datetime' WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
+    
 }
 
-sleep(5);
-
-$query  = null;
-$result = null;
-
-$result = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND lastStatus = 'available' ORDER BY RAND() LIMIT 2") or die(mysqli_error());
+$result = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND channel_name = '$channel_name' AND last_status = 'available' ORDER BY RAND() LIMIT 2");
 
 while ($row = mysqli_fetch_array($result)) {
-
+    
     if ($row['messenger_user_id'] != $messenger_user_id) {
-
+        
         $psid1 = $messenger_user_id;
         $psid2 = $row['messenger_user_id'];
-
+        
+        // create peer id based on 'psid'
         $peer_id = md5($psid1 . $psid2);
+        
+        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = '$peer_id', last_status = 'matched', updated_at = '$datetime' WHERE bot_id = '$bot_id' AND channel_name = '$channel_name' AND messenger_user_id = '$psid1'");
+        
+        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = '$peer_id', last_status = 'matched', updated_at = '$datetime' WHERE bot_id = '$bot_id' AND channel_name = '$channel_name' AND messenger_user_id = '$psid2'");
+             
+        // redirect receiver to 'Chat Started'
+        ChatStarted($bot_id, $broadcasting_api_token, $psid2, $peer_id, $channel_name);
 
-        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = '$peer_id', lastStatus = 'chatting', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND messenger_user_id = '$psid1'");
+        // redirect sender to 'Check Peer Id'
+        echo '{
 
-        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = '$peer_id', lastStatus = 'chatting', updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND channelName = '$channelName' AND messenger_user_id = '$psid2'");
+                    "redirect_to_blocks":[
+                        "Check Peer Id"
+                    ]
 
-        ChatStarted($bot_id, $broadcasting_api_token, $psid1, $peer_id);
-        ChatStarted($bot_id, $broadcasting_api_token, $psid2, $peer_id);
-
+                }';
+        
         exit;
-
+        
     }
-
+    
 }
 
-$result = null;
-
-$query  = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'") or die(mysqli_error());
+$query  = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
 $result = mysqli_fetch_array($query);
 
 if ($result) {
-
-    NoMatch($bot_id, $broadcasting_api_token, $messenger_user_id);
-
-    mysqli_query($con, "UPDATE `anonymous_chat` SET updatedAt = '$updatedAt' WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
-
+    
+    mysqli_query($con, "UPDATE `anonymous_chat` SET updated_at = '$datetime' WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id'");
+    
+    NoMatchFound($bot_id, $broadcasting_api_token, $messenger_user_id, $channel_name);
+    
 }
 
-function ChatStarted($bot_id, $broadcasting_api_token, $psid, $peer_id)
+function ChatStarted($bot_id, $broadcasting_api_token, $psid, $peer_id, $channel_name)
 {
-
+    
     $bot_id     = $bot_id;
     $block_name = 'Chat Started';
     $token      = $broadcasting_api_token;
+    
+    $curl = curl_init();
+    
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name) . '&peer_id=' . $peer_id . '&channel_name=' . urlencode($channel_name),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json'
+        )
+    ));
+    
+    $response = curl_exec($curl);
+    
+    $query = json_decode($response, true);
+    
+    if (!$query['success']) {
 
-    $ch = curl_init('https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name) . '&peer_id=' . $peer_id);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_exec($ch);
-    curl_close($ch);
+        echo '{
 
+                    "messages":[
+                        {
+                            "text":"Invalid bot id or broadcasting api token or messenger user id"
+                        },
+                        {
+                            "text":"Please email contact@chatbot.so if you get stuck or have questions."
+                        }
+                    ]
+
+                }';
+        
+    }
+    
+    curl_close($curl);
+    
 }
 
-function NoMatch($bot_id, $broadcasting_api_token, $psid)
+function NoMatchFound($bot_id, $broadcasting_api_token, $psid, $channel_name)
 {
-
+    
     $bot_id     = $bot_id;
-    $block_name = 'No Match';
+    $block_name = 'No Match Found';
     $token      = $broadcasting_api_token;
+    
+    $curl = curl_init();
+    
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name) . '&channel_name=' . urlencode($channel_name),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json'
+        )
+    ));
+    
+    $response = curl_exec($curl);
+    
+    $query = json_decode($response, true);
+    
+    if (!$query['success']) {
 
-    $ch = curl_init('https://api.chatfuel.com/bots/' . $bot_id . '/users/' . $psid . '/send?chatfuel_token=' . $token . '&chatfuel_block_name=' . urlencode($block_name));
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_exec($ch);
-    curl_close($ch);
+        echo '{
 
+                    "messages":[
+                        {
+                            "text":"Invalid bot id or broadcasting api token or messenger user id"
+                        },
+                        {
+                            "text":"Please email contact@chatbot.so if you get stuck or have questions."
+                        }
+                    ]
+
+                }';
+        
+    }
+    
+    curl_close($curl);
+    
 }
