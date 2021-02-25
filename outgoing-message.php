@@ -107,7 +107,25 @@ if (strlen($bot_id) !== 24) {
 
 }
 
-$$datetime = date('Y-m-d H:i:s');
+$datetime = date('Y-m-d H:i:s');
+
+if (strpos($message, '39178562_1505197616293642_5411344281094848512_n.png')) {
+    
+    $result = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND peer_id = '$peer_id' LIMIT 2") or die(mysqli_error());
+    
+    while ($row = mysqli_fetch_array($result)) {
+               
+        $messenger_user_id = $row['messenger_user_id'];
+        
+        mysqli_query($con, "UPDATE `anonymous_chat` SET peer_id = 'not set', last_status = 'available', updated_at = '$datetime' WHERE bot_id = '$bot_id' AND messenger_user_id = '$messenger_user_id' AND peer_id = '$peer_id'");
+        
+        ChatEnded($bot_id, $broadcasting_api_token, $messenger_user_id);
+        
+    }
+    
+    exit;
+    
+}
 
 $result = mysqli_query($con, "SELECT * FROM `anonymous_chat` WHERE bot_id = '$bot_id' AND peer_id = '$peer_id' LIMIT 2") or die(mysqli_error());
 

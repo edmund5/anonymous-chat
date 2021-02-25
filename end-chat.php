@@ -122,7 +122,7 @@ function ChatEnded($bot_id, $broadcasting_api_token, $psid)
 
                     "messages":[
                         {
-                            "text":"Invalid bot id or broadcasting api token"
+                            "text":"Invalid bot id or broadcasting api token or messenger user id"
                         },
                         {
                             "text":"Please email contact@chatbot.so if you get stuck or have questions."
