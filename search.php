@@ -1,7 +1,7 @@
 <?php
 /**
  * Anonymous Chat - https://www.anonymouschat.cc
- * Created by Edmund Cinco - https://www.edmundcinco.com
+ * Created by Edmund Cinco
  */
 
 include "connectdb.php";
