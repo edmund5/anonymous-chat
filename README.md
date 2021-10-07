@@ -6,8 +6,6 @@ Add an anonymous chatroom feature to your Chatfuel-powered bot! Useful for datin
 
 > [💬 Try on messenger](https://m.me/anonymouschat.cc)
 
-> [🤲 Get the template](https://dashboard.chatfuel.com/#/templates/category/Tools)
-
 ## MIT License
 
 Copyright (c) 2019 Author of the source code of this project
